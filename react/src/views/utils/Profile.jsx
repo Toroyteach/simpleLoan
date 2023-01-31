@@ -12,7 +12,7 @@ import ListGroup from 'react-bootstrap/ListGroup'
 
 export default function Profile() {
     const [loading, setLoading] = useState(false);
-    const { user, setNotification } = useStateContext()
+    const { user, setNotification, setUser } = useStateContext()
 
     const [updateUser, setUpdateUser] = useState({
         id: null,
@@ -69,7 +69,7 @@ export default function Profile() {
         
         setUpdateUser(user)
 
-    }, [])
+    }, [user])
 
     const onSubmit = ev => {
         ev.preventDefault()
@@ -77,8 +77,10 @@ export default function Profile() {
         setLoading(true)
 
         axiosClient.put(`/usersUpdate/${user.id}`, updateUser)
-            .then(() => {
+            .then(({data}) => {
                 setLoading(false)
+                console.log(data)
+                //setUser(data)
                 setNotification('User was successfully updated')
             })
             .catch(err => {

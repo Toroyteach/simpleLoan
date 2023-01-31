@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Link } from "react-router-dom";
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col'
@@ -9,7 +10,7 @@ export default function Notifications() {
 
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
-    const { user, setNotification } = useStateContext()
+    const { user, setNotification, setAppNotification } = useStateContext()
 
     useEffect(() => {
         getNotifications();
@@ -21,7 +22,6 @@ export default function Notifications() {
             .then(({ data }) => {
                 setLoading(false)
                 setNotifications(data)
-                console.log(data)
             })
             .catch(() => {
                 setLoading(false)
@@ -36,8 +36,20 @@ export default function Notifications() {
 
         axiosClient.put(`/makeAsRead/${user.id}`, data)
             .then(() => {
+                getNotification()
                 setNotification('User Notification marked as read')
                 getNotifications()
+            })
+    }
+
+    const getNotification = () => {
+        axiosClient.get('/getNotifications')
+            .then(({ data }) => {
+                //setNotificationsCount(data)
+                setAppNotification(data)
+            })
+            .catch(() => {
+
             })
     }
 
@@ -54,8 +66,15 @@ export default function Notifications() {
                         <div className="card-header">{u.data.message_name}</div>
                         <div className="card-body text-dark">
                             <h5 className="card-title">{u.data.notification_type}</h5>
-                            <p className="card-text">{u.data.message_desc} Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                            <p className="card-text">{u.data.message_desc}.</p>
                         </div>
+
+                        {/* {(user.role != 'admin') ? (
+                            <>
+                            </>
+                        ) : (
+                            <Link className="btn-edit" to={'/loans/' + u.id}>View</Link>
+                        )} */}
 
 
                         {u.read_at != null ? (

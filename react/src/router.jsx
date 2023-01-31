@@ -12,6 +12,8 @@ import Loans from "./views/utils/Loans.jsx";
 import Profile from "./views/utils/Profile.jsx";
 import Notifications from "./views/utils/Notifications.jsx";
 import LoanForm from "./views/LoanForm.jsx";
+import AddUser from "./views/AddUser.jsx";
+import AddLoan from "./views/AddLoan.jsx";
 
 const router = createBrowserRouter([
   {
@@ -32,7 +34,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/users/new',
-        element: <UserForm key="userCreate" />
+        element: <AddUser key="userCreate" />
       },
       {
         path: '/users/:id',
@@ -49,6 +51,10 @@ const router = createBrowserRouter([
       {
         path: '/loans/:id',
         element: <LoanForm />
+      },
+      {
+        path: '/loans/create',
+        element: <AddLoan />
       },
       {
         path: '/notifications',

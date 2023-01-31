@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // });
 
     Route::apiResource('/loans', LoanController::class);
+    Route::put('/updateMpesaStatement/{id}', [LoanController::class, 'updateMpesaStatement']);
     Route::put('/updateStatus/{id}', [LoanController::class, 'updateStatus']);
     Route::put('/makeRepayment/{id}', [LoanController::class, 'makeRepayment']);
     Route::put('/setMaxCreditLimit/{id}', [LoanController::class, 'setMaxCreditLimit']);
@@ -47,6 +48,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/getNotification/{id}', [UserController::class, 'getNotification']);
     Route::put('/makeAsRead/{id}', [UserController::class, 'makeAsRead']);
+    Route::get('/userLoans/{id}', [UserController::class, 'userLoans']);
+    Route::post('/createNewUser', [UserController::class, 'createNewUser']);
+    Route::get('/getNotifications', [UserController::class, 'getNotifications']);
 });
 
 Route::post('/registerNewUser', [AuthController::class, 'registerNewUser']);

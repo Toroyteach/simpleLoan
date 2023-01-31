@@ -110,19 +110,19 @@ const Dashboard = () => {
     <Container style={{ "height": "75vh", "overflow": "auto" }}>
       <Row>
 
-        <Col>
-          <div className="card text-white bg-secondary mb-3">
-            <div className="card-header">Users</div>
-            <div className="card-body">
-
-              {(user.role != 'admin') ? (
+        {(user.role != 'admin') ? (
+          <></>
+        ) : (
+          <Col>
+            <div className="card text-white bg-secondary mb-3">
+              <div className="card-header">Users</div>
+              <div className="card-body">
                 <h2 className="card-title"></h2>
-              ) : (
                 <h2 className="card-title">{usersCount}</h2>
-              )}
+              </div>
             </div>
-          </div>
-        </Col>
+          </Col>
+        )}
 
         <Col>
           <div className="card text-white bg-success mb-3">

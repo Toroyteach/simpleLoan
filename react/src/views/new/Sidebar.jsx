@@ -12,7 +12,7 @@ import { useStateContext } from '../../context/ContextProvider';
 
 const Sidebar = () => {
 
-    const { user } = useStateContext()
+    const { user, appNotificationsCount } = useStateContext()
 
     return (
         <div style={{ display: 'flex', height: '100vh', overflow: 'scroll initial' }}>
@@ -35,6 +35,10 @@ const Sidebar = () => {
                             <CDBSidebarMenuItem icon="user">Loan</CDBSidebarMenuItem>
                         </NavLink>
 
+                        <NavLink exact to="/loans/create" activeClassName="activeClicked">
+                            <CDBSidebarMenuItem icon="user">Request Loan</CDBSidebarMenuItem>
+                        </NavLink>
+
                         {(user.role != 'admin') ? (
                             <>
                             </>
@@ -44,9 +48,25 @@ const Sidebar = () => {
                             </NavLink>
                         )}
 
-                        <NavLink exact to="/notifications" activeClassName="activeClicked">
-                            <CDBSidebarMenuItem icon="table">Notifications</CDBSidebarMenuItem>
-                        </NavLink>
+
+                        {(appNotificationsCount <= 0) ? (
+                            <NavLink exact to="/notifications" activeClassName="activeClicked">
+                                <CDBSidebarMenuItem icon="table">Notifications</CDBSidebarMenuItem>
+                            </NavLink>
+                        ) : (
+
+                            <NavLink exact to="/notifications" activeClassName="activeClicked">
+                                <CDBSidebarMenuItem icon="table">
+                                    Notifications counted
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {appNotificationsCount}
+                                        <span class="visually-hidden">unread messages</span>
+                                    </span>
+                                </CDBSidebarMenuItem>
+                            </NavLink>
+                        )}
+
+
                     </CDBSidebarMenu>
                 </CDBSidebarContent>
             </CDBSidebar>

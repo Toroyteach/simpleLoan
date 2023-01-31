@@ -29,6 +29,7 @@ class UpdateLoanDataRequest extends FormRequest
             'duration' => '',
             'status_id' => '',
             'max_limit_amount' => '',
+            'mpesa_receipt' => '',
         ];
     }
 }

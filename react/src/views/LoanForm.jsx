@@ -23,49 +23,73 @@ export default function LoanForm() {
     })
     const [errors, setErrors] = useState(null)
     const [loading, setLoading] = useState(false)
-    const { user, setNotification } = useStateContext()
+    const { user, setNotification, setAppNotification } = useStateContext()
 
-    if (id) {
-        useEffect(() => {
-            setLoading(true)
-            axiosClient.get(`/loans/${id}`)
-                .then(({ data }) => {
-                    setLoading(false)
-                    setLoan(data)
-                })
-                .catch(() => {
-                    setLoading(false)
-                })
-        }, [])
+    // if (id) {
+    //     useEffect(() => {
+    //         setLoading(true)
+    //         axiosClient.get(`/loans/${id}`)
+    //             .then(({ data }) => {
+    //                 setLoading(false)
+    //                 setLoan(data)
+    //             })
+    //             .catch(() => {
+    //                 setLoading(false)
+    //             })
+    //     }, [])
+    // }
+
+    const getLoanDetails = () => {
+        setLoading(true)
+        axiosClient.get(`/loans/${id}`)
+            .then(({ data }) => {
+                setLoading(false)
+                setLoan(data)
+            })
+            .catch(() => {
+                setLoading(false)
+            })
     }
 
-    const onSubmit = ev => {
-        ev.preventDefault()
-        if (loan.id) {
-            axiosClient.put(`/loans/${loan.id}`, loan)
-                .then(() => {
-                    setNotification('Loan was successfully updated')
-                    navigate('/users')
-                })
-                .catch(err => {
-                    const response = err.response;
-                    if (response && response.status === 422) {
-                        setErrors(response.data.errors)
-                    }
-                })
-        } else {
-            axiosClient.post('/loans', loan)
-                .then(() => {
-                    setNotification('Loan was successfully created')
-                    navigate('/users')
-                })
-                .catch(err => {
-                    const response = err.response;
-                    if (response && response.status === 422) {
-                        setErrors(response.data.errors)
-                    }
-                })
-        }
+    // const onSubmit = ev => {
+    //     ev.preventDefault()
+    //     if (loan.id) {
+    //         axiosClient.put(`/loans/${loan.id}`, loan)
+    //             .then(() => {
+    //                 getLoanDetails()
+    //                 setNotification('Loan was successfully updated')
+    //                 navigate('/users')
+    //             })
+    //             .catch(err => {
+    //                 const response = err.response;
+    //                 if (response && response.status === 422) {
+    //                     setErrors(response.data.errors)
+    //                 }
+    //             })
+    //     } else {
+    //         axiosClient.post('/loans', loan)
+    //             .then(() => {
+    //                 setNotification('Loan was successfully created')
+    //                 navigate('/users')
+    //             })
+    //             .catch(err => {
+    //                 const response = err.response;
+    //                 if (response && response.status === 422) {
+    //                     setErrors(response.data.errors)
+    //                 }
+    //             })
+    //     }
+    // }
+
+    const getNotification = () => {
+        axiosClient.get('/getNotifications')
+            .then(({ data }) => {
+                //setNotificationsCount(data)
+                setAppNotification(data)
+            })
+            .catch(() => {
+
+            })
     }
 
     const updateStatus = async () => {
@@ -101,8 +125,9 @@ export default function LoanForm() {
 
             axiosClient.put(`/updateStatus/${loan.id}`, data)
                 .then(() => {
+                    getLoanDetails()
+                    getNotification()
                     setNotification('Loan Status was successfully updated')
-                    navigate('/loans')
                 })
                 .catch(err => {
                     const response = err.response;
@@ -137,8 +162,9 @@ export default function LoanForm() {
 
             axiosClient.put(`/makeRepayment/${loan.id}`, data)
                 .then(() => {
+                    getLoanDetails()
+                    getNotification()
                     setNotification('Loan Repayment was successfully updated')
-                    navigate('/loans')
                 })
                 .catch(err => {
                     const response = err.response;
@@ -167,8 +193,9 @@ export default function LoanForm() {
 
             axiosClient.put(`/setMaxCreditLimit/${loan.id}`, data)
                 .then(() => {
+                    getLoanDetails()
+                    getNotification()
                     setNotification('Loan Maximum limit was successfully updated')
-                    navigate('/loans')
                 })
                 .catch(err => {
                     const response = err.response;
@@ -178,6 +205,41 @@ export default function LoanForm() {
                 })
         }
     }
+
+    const setMpesaStatement = async () => {
+        const { value: uid } = await Swal.fire({
+            input: 'text',
+            inputLabel: 'ENTER MPESA STATEMENT',
+            inputPlaceholder: 'Enter Receipt number'
+        })
+
+        if (uid) {
+            //ssend to database
+            let text = uid;
+
+            const data = {
+                mpesa_receipt: text.toUpperCase(),
+            }
+
+            axiosClient.put(`/updateMpesaStatement/${loan.id}`, data)
+                .then(() => {
+                    getLoanDetails()
+                    setNotification('Loan Mpesa Statement was successfully updated')
+                })
+                .catch(err => {
+                    const response = err.response;
+                    if (response && response.status === 422) {
+                        setErrors(response.data.errors)
+                    }
+                })
+        }
+    }
+
+    useEffect(() => {
+
+        getLoanDetails()
+
+    }, [id])
 
     return (
         <>
@@ -248,6 +310,10 @@ export default function LoanForm() {
                                             <label for="floatingPassword">Status</label>
                                         </div>
                                     </Col>
+                                    <div className="form-floating">
+                                        <input type="text" className="form-control" id="floatingPassword" placeholder="Password" value={loan.mpesa_receipt} disabled />
+                                        <label for="floatingPassword">Mpesa Receipt</label>
+                                    </div>
                                 </Row>
 
                             </Form>
@@ -266,6 +332,8 @@ export default function LoanForm() {
                                 <button type="button" class="btn btn-secondary" onClick={updateStatus}>Update Status</button>
                                 <br /><br />
                                 <button type="button" class="btn btn-success" onClick={setMaxCreditLimit}>Set Max Credit Limit</button>
+                                <br /><br />
+                                <button type="button" class="btn btn-success" onClick={setMpesaStatement}>Set Mpesa Statement</button>
 
                             </Container>
                         </Col>

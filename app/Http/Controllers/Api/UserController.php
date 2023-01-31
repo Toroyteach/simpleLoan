@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\StoreUserRequestAdmin;
 use App\Http\Requests\UpdateNewUserProfileRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Http\Resources\LoanResource;
 use App\Http\Resources\UserResource;
 use App\Models\File;
+use App\Models\Loan;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -160,6 +163,31 @@ class UserController extends Controller
         $notification->unreadNotifications->when($request->input('id'), function ($query) use ($request) {
             return $query->where('id', $request->input('id'));
         })
-        ->markAsRead();
+            ->markAsRead();
+    }
+
+    public function userLoans($id)
+    {
+        return LoanResource::collection(Loan::query()->orderBy('id', 'desc')->where('user_id', $id)->paginate(10));
+    }
+
+    public function createNewUser(StoreUserRequestAdmin $request)
+    {
+        $data = $request->validated();
+        $data['password'] = bcrypt($data['password']);
+        $user = User::create($data);
+
+        return response(new UserResource($user), 201);
+    }
+
+    public function getNotifications()
+    {
+        $user = Auth::user()->id;
+
+        $notificationCount = User::find($user);
+
+        $count = $notificationCount->unreadNotifications()->groupBy('notifiable_type')->count();
+
+        return response($count, 201);
     }
 }

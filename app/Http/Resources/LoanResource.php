@@ -33,6 +33,7 @@ class LoanResource extends JsonResource
             'max_limit_amount' => $this->max_limit_amount,
             'status_id' => $statusName->name,
             'user_id' => $userName->name,
+            'mpesa_receipt' => $this->mpesa_receipt,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
         ];
     }

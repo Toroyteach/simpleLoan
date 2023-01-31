@@ -29,8 +29,8 @@ class UpdateNewUserProfileRequest extends FormRequest
             'firstname' => ['required', 'string'],
             'lastname' => ['required', 'string'],
             'address' => ['required', 'string'],
-            'id_number' => ['required', 'integer', 'unique:users,id_number,'.$this->id],
-            'number' => ['required', 'integer', 'unique:users,number,'.$this->id],
+            'id_number' => ['required', 'integer', 'unique:users,id_number,'.$this->id, 'digits_between:6,8',],
+            'number' => ['required', 'integer', 'unique:users,number,'.$this->id, 'digits:12', 'regex:/(254)[0-9]{9}/'],
             'password' => [
                 'confirmed',
                 Password::min(8)

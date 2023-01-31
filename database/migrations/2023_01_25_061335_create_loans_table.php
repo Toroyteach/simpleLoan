@@ -17,7 +17,7 @@ return new class extends Migration
             $table->increments('id');
             $table->longText('description')->nullable();
             $table->decimal('loan_amount', 15, 2);
-            $table->decimal('repaid_amount', 15, 2);
+            $table->decimal('repaid_amount', 15, 2)->default(0);
             $table->decimal('balance_amount', 15, 2);
             $table->decimal('max_limit_amount', 15, 2)->default(0);
             $table->decimal('loan_amount_plus_interest', 15, 2);
@@ -26,9 +26,10 @@ return new class extends Migration
             $table->string('duration')->default(1);
             $table->date('approved_date')->nullable();
             $table->date('next_pay_date')->nullable();
+            $table->string('mpesa_receipt')->nullable()->unique();
             $table->integer('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unsignedInteger('status_id')->nullable();
+            $table->unsignedInteger('status_id')->default(1)->nullable();
             $table->foreign('status_id', 'status_fk_1721035')->references('id')->on('statuses');
             $table->timestamps();
             $table->softDeletes();

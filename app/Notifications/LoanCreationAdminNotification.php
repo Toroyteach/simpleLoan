@@ -2,13 +2,12 @@
 
 namespace App\Notifications;
 
-use App\Models\Loan;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class LoanApplicationNotification extends Notification
+class LoanCreationAdminNotification extends Notification
 {
     use Queueable;
 
@@ -17,7 +16,6 @@ class LoanApplicationNotification extends Notification
      *
      * @return void
      */
-
     private $user;
 
     public function __construct($user)
@@ -45,9 +43,9 @@ class LoanApplicationNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+                    ->line('The introduction to the notification.')
+                    ->action('Notification Action', url('/'))
+                    ->line('Thank you for using our application!');
     }
 
     /**

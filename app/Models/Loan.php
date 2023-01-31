@@ -32,6 +32,7 @@ class Loan extends Model
         'max_limit_amount',
         'approved_date',
         'next_pay_date',
+        'mpesa_receipt',
         'created_at',
         'updated_at',
         'deleted_at',

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::group(['middleware' => ['auth:sanctum', 'cors']],function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 

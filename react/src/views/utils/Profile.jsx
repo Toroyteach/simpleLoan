@@ -117,7 +117,7 @@ export default function Profile() {
                 <Row>
                     <Col>
                         <Card style={{ width: '18rem' }}>
-                            <Card.Img variant="top" src={"http://127.0.0.1:8000/uploads/" + user.photo_url} />
+                            <Card.Img variant="top" src={"https://kuza.mtangazaji.com/uploads/" + user.photo_url} />
                             <Card.Body>
                                 <Card.Title> {user.name} </Card.Title>
                             </Card.Body>

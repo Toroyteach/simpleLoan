@@ -145,7 +145,7 @@ export default function UserForm() {
         <Row>
           <Col>
             <Card style={{ width: '18rem' }}>
-              <Card.Img variant="top" src={"http://127.0.0.1:8000/uploads/" + user.photo_url} />
+              <Card.Img variant="top" src={"https://kuza.mtangazaji.com/uploads/" + user.photo_url} />
               <Card.Body>
                 <Card.Title> {user.name} </Card.Title>
               </Card.Body>
@@ -246,7 +246,9 @@ export default function UserForm() {
                   </tr>
                 </tbody>
               }
-              {!loading &&
+
+
+              {/* {!loading &&
                 <tbody>
                   {userLoans.map(u => (
                     <tr key={u.id}>
@@ -268,7 +270,37 @@ export default function UserForm() {
                     </tr>
                   ))}
                 </tbody>
-              }
+              } */}
+
+              {(loading) ? (
+                <tbody>
+                {userLoans.map(u => (
+                  <tr key={u.id}>
+                    <td>{u.id}</td>
+                    <td>{u.user_id}</td>
+                    <td>{u.loan_amount}</td>
+                    <td>{u.status_id}</td>
+                    <td>{u.created_at}</td>
+                    <td>
+                      <Link className="btn-edit" to={'/loans/' + u.id}>View</Link>
+                      &nbsp;
+                      {(user.role != 'admin') ? (
+                        <></>
+                      ) : (
+                        <button className="btn-delete" onClick={ev => onDeleteClick(u)}>Delete</button>
+                      )}
+
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              ) : (
+                <div class="alert alert-warning" role="alert">
+                  There are no Loans ata the moment.
+                </div>
+              )}
+
+
             </table>
           </div>
         </div>

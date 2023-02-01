@@ -62,7 +62,9 @@ export default function Loans() {
               </tr>
             </tbody>
           }
-          {!loading &&
+
+
+          {(loading) ? (
             <tbody>
               {loans.map(u => (
                 <tr key={u.id}>
@@ -84,7 +86,39 @@ export default function Loans() {
                 </tr>
               ))}
             </tbody>
-          }
+          ) : (
+            <div class="alert alert-warning" role="alert">
+              There are no Loans ata the moment.
+            </div>
+          )}
+
+
+
+          {/* {!loading &&
+            <tbody>
+              {loans.map(u => (
+                <tr key={u.id}>
+                  <td>{u.id}</td>
+                  <td>{u.user_id}</td>
+                  <td>{u.loan_amount}</td>
+                  <td>{u.status_id}</td>
+                  <td>{u.created_at}</td>
+                  <td>
+                    <Link className="btn-edit" to={'/loans/' + u.id}>View</Link>
+                    &nbsp;
+                    {(user.role != 'admin') ? (
+                      <></>
+                    ) : (
+                      <button className="btn-delete" onClick={ev => onDeleteClick(u)}>Delete</button>
+                    )}
+
+                  </td>
+                </tr>
+              ))}
+
+
+            </tbody>
+          } */}
         </table>
       </div>
     </div>

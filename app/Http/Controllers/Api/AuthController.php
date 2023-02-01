@@ -30,7 +30,7 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => bcrypt('toroyteach'),
+            'password' => bcrypt($randPass),
         ]);
 
         //TODO: notify Administrator

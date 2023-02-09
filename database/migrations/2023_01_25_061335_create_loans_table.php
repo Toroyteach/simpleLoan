@@ -26,9 +26,11 @@ return new class extends Migration
             $table->string('duration')->default(1);
             $table->date('approved_date')->nullable();
             $table->date('next_pay_date')->nullable();
+            $table->date('due_payment_date')->nullable();
             $table->string('mpesa_receipt')->nullable()->unique();
             $table->integer('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('file');
             $table->unsignedInteger('status_id')->default(1)->nullable();
             $table->foreign('status_id', 'status_fk_1721035')->references('id')->on('statuses');
             $table->timestamps();

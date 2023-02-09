@@ -9,7 +9,7 @@ export default function Login() {
   const passwordRef = createRef()
   const { setUser, setToken } = useStateContext()
   const [message, setMessage] = useState(null)
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const onSubmit = ev => {
     ev.preventDefault()
@@ -24,7 +24,7 @@ export default function Login() {
         setUser(data.user)
         setToken(data.token);
 
-        // navigate("/dashboard");
+        navigate("/dashboard");
       })
       .catch((err) => {
         const response = err.response;

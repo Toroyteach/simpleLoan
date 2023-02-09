@@ -8,6 +8,12 @@ import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 import { Document, Page } from 'react-pdf';
 
+import Records from "./utils/tblloanUtils/Records.jsx";
+import Pagination from "./utils/tblloanUtils/Pagination.jsx";
+
+import { jsPDF } from "jspdf";
+import autoTable from 'jspdf-autotable'
+
 export default function UserForm() {
   const navigate = useNavigate();
   let { id } = useParams();
@@ -23,6 +29,7 @@ export default function UserForm() {
     password: '',
     password_confirmation: '',
     role: '',
+    account_activated: null,
     photo_url: '',
   })
   const [errors, setErrors] = useState(null)
@@ -32,6 +39,11 @@ export default function UserForm() {
   const [show, setHide] = useState(false);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage] = useState(10);
+
+  const doc = new jsPDF()
 
   // if (id) {
   //   useEffect(() => {
@@ -55,6 +67,16 @@ export default function UserForm() {
         setLoading(false)
         setUser(data)
         getUserLoans(id);
+
+        // if (data.account_activated === 0) {
+
+        //   setUser({ ...user, firstname: ' ' })
+        //   setUser({ ...user, lastname: ' ' })
+        //   setUser({ ...user, address: ' ' })
+        //   setUser({ ...user, password: ' ' })
+
+        // }
+
       })
       .catch(() => {
         setLoading(false)
@@ -112,18 +134,65 @@ export default function UserForm() {
       })
   }
 
-  const onDocumentLoadSuccess = () => {
-    setNumPages(numPages);
+  const downloadUserStatement = () => {
+    setLoading(true)
+
+    const id = user.id;
+
+    axiosClient.get(`/userStatement/${id}`)
+      .then(({ data }) => {
+        setLoading(false)
+
+        if (data.data.length > 0) {
+
+          const loanArray = data.data
+          const pdfData = []
+
+          loanArray.forEach((item, index) => {
+
+            pdfData.push([index + 1, item.user_id, item.loan_amount, item.created_at, item.approved_date, item.status_id, item.mpesa_receipt, item.balance_amount, item.due_payment_date])
+
+          })
+
+          doc.autoTable({
+            body: [
+              [{ content: `Name:${user.firstname} ${user.lastname}       Email:${user.email}        Number:${user.number}`, colSpan: 2, rowSpan: 2, styles: { halign: 'left' } }],
+            ],
+          })
+          doc.autoTable({
+            styles: { fontSize: 8 },
+            head: [['Id', 'User', 'Amount-Requested', 'Created', 'Approved', 'Status', 'Mpesa-Statement', 'Balance', 'Payment-Due']],
+            body: pdfData,
+          })
+          doc.save(`user_${user.name}_report.pdf`)
+
+        } else {
+
+          setNotification("No data to generate Report")
+
+        }
+
+      })
+      .catch(() => {
+        setLoading(false)
+      })
   }
 
   useEffect(() => {
     getUserData()
   }, [id])
 
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = userLoans.slice(indexOfFirstRecord, indexOfLastRecord);
+  const nPages = Math.ceil(userLoans.length / recordsPerPage)
+
   return (
     <>
       {user.id && <h2>User : {user.name}</h2>}
-      {!user.id && <h1>New User</h1>}
+
+      {!user.id && <h2>New User</h2>}
+
       <div className="card animated fadeInDown">
         {loading && (
           <div className="text-center">
@@ -141,7 +210,7 @@ export default function UserForm() {
 
       <Link className="btn-info" to={'/users'}>Back</Link>
 
-      <Container>
+      <Container style={{ "height": "70vh", "overflow": "auto" }}>
         <Row>
           <Col>
             <Card style={{ width: '18rem' }}>
@@ -191,7 +260,7 @@ export default function UserForm() {
                       <input type="text" autocomplete="off" className="form-control" id="inputText4" value={user.address} onChange={ev => setUser({ ...user, address: ev.target.value })} required />
                     </div>
                     <div className="col-12">
-                      <select class="form-select" aria-label="Default select example" value={user.role} onChange={ev => setUser({ ...user, role: ev.target.value })} required>
+                      <select className="form-select" aria-label="Default select example" value={user.role} onChange={ev => setUser({ ...user, role: ev.target.value })} required>
                         <option selected>Add Role</option>
                         <option value="user">User</option>
                         <option value="admin">Admin</option>
@@ -216,92 +285,12 @@ export default function UserForm() {
         <div>
           <div style={{ display: 'flex', justifyContent: "space-between", alignItems: "center" }}>
             <h1>Loan Requests</h1>
-            <button className="btn btn-primary">Print</button>
-            <Document file="somefile.pdf" onLoadSuccess={onDocumentLoadSuccess}>
-              <Page pageNumber={pageNumber} />
-            </Document>
-            <p>
-              Page {pageNumber} of {numPages}
-            </p>
-            {/* <Link className="btn-add" to="/users/new">Add new</Link> */}
+            <button className="btn btn-primary" onClick={downloadUserStatement}>Print Report</button>
           </div>
           <div className="card animated fadeInDown">
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>User</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                  <th>Create Date</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              {loading &&
-                <tbody>
-                  <tr>
-                    <td colSpan="5" className="text-center">
-                      Loading...
-                    </td>
-                  </tr>
-                </tbody>
-              }
 
-
-              {/* {!loading &&
-                <tbody>
-                  {userLoans.map(u => (
-                    <tr key={u.id}>
-                      <td>{u.id}</td>
-                      <td>{u.user_id}</td>
-                      <td>{u.loan_amount}</td>
-                      <td>{u.status_id}</td>
-                      <td>{u.created_at}</td>
-                      <td>
-                        <Link className="btn-edit" to={'/loans/' + u.id}>View</Link>
-                        &nbsp;
-                        {(user.role != 'admin') ? (
-                          <></>
-                        ) : (
-                          <button className="btn-delete" onClick={ev => onDeleteClick(u)}>Delete</button>
-                        )}
-
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              } */}
-
-              {(loading) ? (
-                <tbody>
-                {userLoans.map(u => (
-                  <tr key={u.id}>
-                    <td>{u.id}</td>
-                    <td>{u.user_id}</td>
-                    <td>{u.loan_amount}</td>
-                    <td>{u.status_id}</td>
-                    <td>{u.created_at}</td>
-                    <td>
-                      <Link className="btn-edit" to={'/loans/' + u.id}>View</Link>
-                      &nbsp;
-                      {(user.role != 'admin') ? (
-                        <></>
-                      ) : (
-                        <button className="btn-delete" onClick={ev => onDeleteClick(u)}>Delete</button>
-                      )}
-
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              ) : (
-                <div class="alert alert-warning" role="alert">
-                  There are no Loans ata the moment.
-                </div>
-              )}
-
-
-            </table>
+            <Records data={currentRecords} />
+            <Pagination nPages={nPages} currentPage={currentPage} setCurrentPage={setCurrentPage} />
           </div>
         </div>
       </Container>

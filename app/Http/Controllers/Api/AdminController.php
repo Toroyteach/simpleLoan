@@ -15,17 +15,21 @@ class AdminController extends Controller
     {
 
         $usersCount = User::count();
-        $amountLoaned = Loan::sum('loan_amount');
+        $amountLoaned = Loan::where('status_id', 2)->sum('loan_amount');
         $amountPaidBack = Loan::sum('repaid_amount');
+        $pendingPayment = Loan::where('status_id', [2, 5])->sum('loan_amount');
 
         $graphData = $this->getGraphData();
+        $graphData2 = $this->getGraphData2();
 
 
         $responseData = array(
             "usersCount" => $usersCount,
             "amountLoaned" => $amountLoaned,
             "amountPaidBack" => $amountPaidBack,
-            "graphData" => $graphData
+            "graphData" => $graphData,
+            "graphData2" => $graphData2,
+            "pendingPayment" => $pendingPayment,
         );
 
         return json_encode($responseData);
@@ -37,7 +41,19 @@ class AdminController extends Controller
         $monthlyValues = array();
 
         for ($x = 0; $x < 12; $x++) {
-            $monthlyValues[$x] = Loan::select(['loan_amount', 'repaid_amount', 'created_at'])->whereMonth('created_at', $x + 1)->sum('loan_amount');
+            $monthlyValues[$x] = Loan::select(['loan_amount', 'created_at', 'status_id'])->where('status_id', 2)->whereMonth('created_at', $x + 1)->sum('loan_amount');
+        }
+
+        return $monthlyValues;
+    }
+
+    private function getGraphData2()
+    {
+
+        $monthlyValues = array();
+
+        for ($x = 0; $x < 12; $x++) {
+            $monthlyValues[$x] = Loan::select(['repaid_amount', 'created_at', 'status_id'])->where('status_id', 2)->whereMonth('created_at', $x + 1)->sum('repaid_amount');
         }
 
         return $monthlyValues;

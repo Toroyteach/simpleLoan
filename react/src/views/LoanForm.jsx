@@ -20,24 +20,13 @@ export default function LoanForm() {
         status_id: null,
         description: '',
         max_limit_amount: 0,
+        due_payment_date: '',
     })
     const [errors, setErrors] = useState(null)
     const [loading, setLoading] = useState(false)
     const { user, setNotification, setAppNotification } = useStateContext()
 
-    // if (id) {
-    //     useEffect(() => {
-    //         setLoading(true)
-    //         axiosClient.get(`/loans/${id}`)
-    //             .then(({ data }) => {
-    //                 setLoading(false)
-    //                 setLoan(data)
-    //             })
-    //             .catch(() => {
-    //                 setLoading(false)
-    //             })
-    //     }, [])
-    // }
+    const [disabled, setDisabled] = useState(true);
 
     const getLoanDetails = () => {
         setLoading(true)
@@ -45,8 +34,15 @@ export default function LoanForm() {
             .then(({ data }) => {
                 setLoading(false)
                 setLoan(data)
+
+                if (data.status_id === 'AdjustAmount') {
+                    setDisabled(false);
+                }
+
             })
             .catch(() => {
+                navigate('/notifications')
+                setNotification('The loan Application item was deleted')
                 setLoading(false)
             })
     }
@@ -100,8 +96,10 @@ export default function LoanForm() {
             inputOptions: {
                 1: 'Processing',
                 2: 'Approved',
+                3: 'AdjustAmount',
                 4: 'Rejected',
-                5: 'Defaulted'
+                5: 'Defaulted',
+                6: 'Paid'
             },
             inputPlaceholder: 'Select new Status',
             showCancelButton: true,
@@ -140,6 +138,19 @@ export default function LoanForm() {
     }
 
     const makeRepayment = async () => {
+
+        if (loan.status_id != 'Approved') {
+
+            Swal.fire({
+                position: 'top-end',
+                icon: 'question',
+                title: 'This loan Application is not yet approved.',
+                showConfirmButton: false,
+                timer: 2000
+            })
+
+            return
+        }
 
         const { value: amount } = await Swal.fire({
             title: 'Would you like to make Loan Repayment',
@@ -180,7 +191,7 @@ export default function LoanForm() {
         const { value: amount } = await Swal.fire({
             input: 'number',
             inputLabel: 'Maximum Loan Amount',
-            inputPlaceholder: 'Enter number'
+            inputPlaceholder: 'Enter Amount'
         })
 
         if (amount) {
@@ -196,6 +207,44 @@ export default function LoanForm() {
                     getLoanDetails()
                     getNotification()
                     setNotification('Loan Maximum limit was successfully updated')
+                })
+                .catch(err => {
+                    const response = err.response;
+                    if (response && response.status === 422) {
+                        setErrors(response.data.errors)
+                    }
+                })
+        }
+    }
+
+    const setNewLoanAmount = async () => {
+
+        const { value: amount } = await Swal.fire({
+            title: 'Would you like to choose new Loan Amount',
+            icon: 'question',
+            input: 'range',
+            inputLabel: 'New Loan Amount',
+            inputAttributes: {
+                min: 1000,
+                max: loan.max_limit_amount,
+                step: 500
+            },
+            inputValue: 1000
+        })
+
+        if (amount > 0) {
+
+            const data = {
+                loan_amount: amount,
+                status_id: 1
+            }
+
+            axiosClient.put(`/setNewLoanAmount/${loan.id}`, data)
+                .then(() => {
+                    getLoanDetails()
+                    getNotification()
+                    setNotification('New Loan Amount was successfully updated')
+                    setDisabled(true);
                 })
                 .catch(err => {
                     const response = err.response;
@@ -235,6 +284,47 @@ export default function LoanForm() {
         }
     }
 
+    const downloadStatement = () => {
+
+        const config = {
+            headers: {
+                "responseType": "blob"
+            }
+        };
+
+        const fileId = loan.file
+
+        const id = fileId //fileId.substring(0, fileId.length-3);
+
+        axiosClient.get(`/downloadLoanFile/${id}`, config)
+            .then((response) => {
+
+                console.log(response.data)
+
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `${user.name}_mpesa_statement.pdf`); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // let url = window.URL.createObjectURL(response.data);
+                // let a = document.createElement('a');
+                // a.href = url;
+                // a.setAttribute('download', `${user.name}_mpesa_statement.pdf`);
+                // a.click();
+
+            })
+            .catch(err => {
+                const response = err.response;
+                if (response && response.status === 422) {
+                    setErrors(response.data.errors)
+                }
+            })
+
+
+    }
+
     useEffect(() => {
 
         getLoanDetails()
@@ -246,6 +336,13 @@ export default function LoanForm() {
             {/* {user.id && <h2>Loan Details:<span> {user.name}</span></h2>} */}
 
             <Container>
+
+                {loading &&
+                    <div className="spinner-border" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                }
+
                 <Row>
                     <Col>
                         <Card>
@@ -254,13 +351,13 @@ export default function LoanForm() {
                                     <Col>
                                         <div className="form-floating mb-3">
                                             <input type="number" className="form-control" id="floatingInput" placeholder="name@example.com" value={loan.loan_amount} disabled />
-                                            <label for="floatingInput">Loan Amount</label>
+                                            <label htmlFor="floatingInput">Loan Amount</label>
                                         </div>
                                     </Col>
                                     <Col>
                                         <div className="form-floating">
                                             <input type="number" className="form-control" id="floatingPassword" placeholder="0.00" value={loan.max_limit_amount} disabled />
-                                            <label for="floatingPassword">Max Loan Limit</label>
+                                            <label htmlFor="floatingPassword">Max Loan Limit</label>
                                         </div>
                                     </Col>
                                 </Row>
@@ -269,7 +366,7 @@ export default function LoanForm() {
 
                                 <div className="form-floating">
                                     <textarea value={loan.description} className="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style={{ "height": "100px" }} disabled></textarea>
-                                    <label for="floatingTextarea2">Loan Description</label>
+                                    <label htmlFor="floatingTextarea2">Loan Description</label>
                                 </div>
 
                                 <br />
@@ -278,19 +375,19 @@ export default function LoanForm() {
                                     <Col>
                                         <div className="form-floating mb-3">
                                             <input type="number" className="form-control" id="floatingInput" placeholder="name@example.com" value={loan.repaid_amount} disabled />
-                                            <label for="floatingInput">Repaid Amount</label>
+                                            <label htmlFor="floatingInput">Repaid Amount</label>
                                         </div>
                                     </Col>
                                     <Col>
                                         <div className="form-floating">
                                             <input type="number" className="form-control" id="floatingPassword" placeholder="Password" value={loan.balance_amount} disabled />
-                                            <label for="floatingPassword">Balance Amount</label>
+                                            <label htmlFor="floatingPassword">Balance Amount</label>
                                         </div>
                                     </Col>
                                     <Col>
                                         <div className="form-floating">
                                             <input type="number" className="form-control" id="floatingPassword" placeholder="Password" value={loan.loan_amount_plus_interest} disabled />
-                                            <label for="floatingPassword">Amount plus Interest</label>
+                                            <label htmlFor="floatingPassword">Amount plus Interest</label>
                                         </div>
                                     </Col>
                                 </Row>
@@ -301,19 +398,49 @@ export default function LoanForm() {
                                     <Col>
                                         <div className="form-floating mb-3">
                                             <input type="email" className="form-control" id="floatingInput" placeholder="name@example.com" value={loan.created_at} disabled />
-                                            <label for="floatingInput">Date Created</label>
+                                            <label htmlFor="floatingInput">Date Created</label>
                                         </div>
                                     </Col>
                                     <Col>
                                         <div className="form-floating">
                                             <input type="text" className="form-control" id="floatingPassword" placeholder="Password" value={loan.status_id} disabled />
-                                            <label for="floatingPassword">Status</label>
+                                            <label htmlFor="floatingPassword">Status</label>
                                         </div>
                                     </Col>
-                                    <div className="form-floating">
-                                        <input type="text" className="form-control" id="floatingPassword" placeholder="Password" value={loan.mpesa_receipt} disabled />
-                                        <label for="floatingPassword">Mpesa Receipt</label>
-                                    </div>
+
+                                </Row>
+                                <Row>
+                                    {(user.role != 'admin') ? (
+                                        <></>
+                                    ) : (
+                                        <Col>
+                                            <div className="form-floating">
+                                                <input type="text" className="form-control" id="floatingPassword" placeholder="Password" value={loan.mpesa_receipt} disabled />
+                                                <label htmlFor="floatingPassword">Mpesa Receipt</label>
+                                            </div>
+                                        </Col>
+                                    )}
+
+                                </Row>
+
+                                <Row>
+                                    {(user.role != 'admin') ? (
+                                        <></>
+                                    ) : (
+                                        <Col>
+                                            <div className="form-floating">
+                                                <input type="text" className="form-control" id="floatingPassword" placeholder="Password" value={loan.approved_date} disabled />
+                                                <label htmlFor="floatingPassword">Approved Date</label>
+                                            </div>
+                                        </Col>
+                                    )}
+                                    <Col>
+                                        <div className="form-floating">
+                                            <input type="text" className="form-control" id="floatingPassword" placeholder="Password" value={loan.due_payment_date} disabled />
+                                            <label htmlFor="floatingPassword">Payment Due Date</label>
+                                        </div>
+                                    </Col>
+
                                 </Row>
 
                             </Form>
@@ -321,19 +448,26 @@ export default function LoanForm() {
                     </Col>
 
                     {(user.role != 'admin') ? (
-                        <>
-                        </>
+                        <Col>
+                            <Container>
+
+                                <button type="button" className="btn btn-primary" onClick={setNewLoanAmount} disabled={disabled}>Update Request Amount</button>
+
+                            </Container>
+                        </Col>
                     ) : (
                         <Col>
                             <Container>
 
-                                <button type="button" class="btn btn-primary" onClick={makeRepayment}>Make Repayment</button>
+                                <button type="button" className="btn btn-primary" onClick={makeRepayment}>Make Repayment</button>
                                 <br /><br />
-                                <button type="button" class="btn btn-secondary" onClick={updateStatus}>Update Status</button>
+                                <button type="button" className="btn btn-secondary" onClick={updateStatus}>Update Status</button>
                                 <br /><br />
-                                <button type="button" class="btn btn-success" onClick={setMaxCreditLimit}>Set Max Credit Limit</button>
+                                <button type="button" className="btn btn-success" onClick={setMaxCreditLimit}>Set Max Credit Limit</button>
                                 <br /><br />
-                                <button type="button" class="btn btn-success" onClick={setMpesaStatement}>Set Mpesa Statement</button>
+                                <button type="button" className="btn btn-success" onClick={setMpesaStatement}>Set Mpesa Statement</button>
+                                <br /><br />
+                                <button type="button" className="btn btn-success" onClick={downloadStatement}>Download Statement</button>
 
                             </Container>
                         </Col>

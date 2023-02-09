@@ -106,7 +106,7 @@ export default function AddUser() {
                                             <input type="text" autocomplete="off" className="form-control" id="inputText4" value={user.address} onChange={ev => setUser({ ...user, address: ev.target.value })} required />
                                         </div>
                                         <div className="col-12">
-                                            <select class="form-select" aria-label="Default select example" value={user.role} onChange={ev => setUser({ ...user, role: ev.target.value })} required>
+                                            <select className="form-select" aria-label="Default select example" value={user.role} onChange={ev => setUser({ ...user, role: ev.target.value })} required>
                                                 <option selected>Add Role</option>
                                                 <option value="user">User</option>
                                                 <option value="admin">Admin</option>

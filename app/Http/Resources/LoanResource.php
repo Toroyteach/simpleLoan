@@ -35,6 +35,9 @@ class LoanResource extends JsonResource
             'user_id' => $userName->name,
             'mpesa_receipt' => $this->mpesa_receipt,
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
+            'due_payment_date' =>$this->due_payment_date ? $this->due_payment_date : 'null',
+            'approved_date' =>$this->approved_date ? $this->approved_date : 'null',
+            'file' => $this->file,
         ];
     }
 }

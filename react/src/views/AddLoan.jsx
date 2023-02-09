@@ -11,17 +11,41 @@ export default function AddLoan() {
     const [loanRequest, setLoanRequest] = useState({
         loan_amount: '',
         description: '',
-        user_id: null
+        user_id: null,
+        uploadfile: null
     })
     const [errors, setErrors] = useState(null)
     const [loading, setLoading] = useState(false)
     const { user, setNotification, setAppNotification } = useStateContext()
 
+    const [loanFile, setLoanFile] = useState([])
+
+    const config = {
+        headers: {
+            "content-type": "multipart/form-data"
+        }
+    };
+
+    const handleLoanFileSelect = (event) => {
+        setLoanFile(event.target.files[0])
+    }
+
     const onSubmit = ev => {
         ev.preventDefault()
 
-        axiosClient.post('/loans', loanRequest)
+        setLoanRequest({ ...loanRequest, user_id: user.id })
+
+        const formData = new FormData();
+
+        for ( var key in loanRequest ) {
+            formData.append(key, loanRequest[key]);
+        }
+
+        formData.append("uploadfile", loanFile);
+
+        axiosClient.post('/loans', formData, config)
             .then(() => {
+                getNotification()
                 setNotification('User was successfully created')
                 navigate('/loans')
             })
@@ -46,7 +70,7 @@ export default function AddLoan() {
 
     useEffect(() => {
 
-        getNotification()
+        //getNotification()
 
     }, [])
 
@@ -84,12 +108,16 @@ export default function AddLoan() {
                                 <div className="card animated fadeInDown">
                                     <form className="row g-3" onSubmit={onSubmit}>
                                         <div className="col-md-6">
-                                            <label for="inputEmail4" className="form-label">Loan Amount</label>
-                                            <input type="text" autocomplete="off" className="form-control" id="inputText4" onChange={ev => setLoanRequest({ ...loanRequest, loan_amount: ev.target.value })} />
+                                            <label htmlFor="inputEmail4" className="form-label">Loan Amount</label>
+                                            <input type="number" autoComplete="off" className="form-control" id="inputText4" onChange={ev => setLoanRequest({ ...loanRequest, loan_amount: ev.target.value })} required />
                                         </div>
                                         <div className="form-floating">
-                                            <textarea className="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style={{ "height": "100px" }} onChange={ev => setLoanRequest({ ...loanRequest, description: ev.target.value })}></textarea>
-                                            <label for="floatingTextarea2">Loan Description</label>
+                                            <textarea className="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style={{ "height": "100px" }} onChange={ev => setLoanRequest({ ...loanRequest, description: ev.target.value })} required></textarea>
+                                            <label htmlFor="floatingTextarea2">Loan Description</label>
+                                        </div>
+                                        <div className="form-group">
+                                            <input type="file" onChange={handleLoanFileSelect} required/>
+                                            <label htmlFor="floatingTextarea2">Upload Loan Statement</label>
                                         </div>
                                         <div className="col-12">
                                             <button type="submit" className="btn btn-primary">Save</button>

@@ -14,11 +14,11 @@ export default function Notifications() {
 
     useEffect(() => {
         getNotifications();
-    }, [])
+    }, [user])
 
     const getNotifications = () => {
         setLoading(true)
-        axiosClient.get(`/getNotification/${user.id}`)
+        axiosClient.get(`/getNotificationList/${user.id}`)
             .then(({ data }) => {
                 setLoading(false)
                 setNotifications(data)
@@ -54,42 +54,60 @@ export default function Notifications() {
     }
 
     return (
-        <>
+        <Container style={{ "height": "68vh", "overflow": "auto" }}>
+
             <div>Notifications</div>
 
-            <Container style={{ "height": "60vh", "overflow": "auto" }}>
 
-                {notifications.map(u => (
+            {notifications.length > 0 ? (
+
+                <Container style={{ "height": "60vh", "overflow": "auto" }}>
+
+                    {notifications.map(u => (
 
 
-                    <div className="card border-info mb-3" style={{ "max-width": "18rem;" }}>
-                        <div className="card-header">{u.data.message_name}</div>
-                        <div className="card-body text-dark">
-                            <h5 className="card-title">{u.data.notification_type}</h5>
-                            <p className="card-text">{u.data.message_desc}.</p>
+                        <div key={u.id} className="card border-info mb-3" style={{ maxWidth: "40rem" }}>
+                            <div className="card-header">{u.data.message_name}</div>
+                            <div className="card-body text-dark">
+                                <h5 className="card-title">{u.data.notification_type}</h5>
+                                <p className="card-text">{u.data.message_desc}.</p>
+                            </div>
+
+                            <Row>
+                                <Col>
+
+                                    {u.data.loan_id ? (
+                                        <Link className="btn-edit" to={'/loans/' + u.data.loan_id}>View</Link>
+                                    ) : (
+                                        <Link className="btn-edit" to={'/users/' + u.data.user_id}>View</Link>
+                                    )}
+
+                                </Col>
+                                <Col>
+                                    {u.read_at != null ? (
+                                        <></>
+                                    ) : (
+                                        <button onClick={ev => onMarkReadClick(u.id)}> Marks as Read</button>
+                                    )}
+                                </Col>
+                            </Row>
+
                         </div>
 
-                        {/* {(user.role != 'admin') ? (
-                            <>
-                            </>
-                        ) : (
-                            <Link className="btn-edit" to={'/loans/' + u.id}>View</Link>
-                        )} */}
+
+                    ))}
 
 
-                        {u.read_at != null ? (
-                            <></>
-                        ) : (
-                            <button onClick={ev => onMarkReadClick(u.id)}> Marks as Read</button>
-                        )}
-
-                    </div>
 
 
-                ))}
 
+                </Container>
 
-            </Container>
-        </>
+            ) : (
+                <div>
+                    No Notifications found
+                </div>
+            )}
+        </Container>
     )
 }

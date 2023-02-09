@@ -38,6 +38,11 @@ Route::group(['middleware' => ['auth:sanctum', 'cors']],function () {
     Route::put('/updateStatus/{id}', [LoanController::class, 'updateStatus']);
     Route::put('/makeRepayment/{id}', [LoanController::class, 'makeRepayment']);
     Route::put('/setMaxCreditLimit/{id}', [LoanController::class, 'setMaxCreditLimit']);
+    Route::put('/setNewLoanAmount/{id}', [LoanController::class, 'setNewLoanAmount']);
+    Route::get('/downloadLoanFile/{id}', [LoanController::class, 'downloadLoanFile']);
+    Route::get('/approvedLoans', [LoanController::class, 'approvedLoans']);
+    Route::get('/pendingLoans', [LoanController::class, 'pendingLoans']);
+    Route::get('/userStatement/{id}', [LoanController::class, 'userStatement']);
     
     
     Route::get('/adminDashboard', [AdminController::class, 'getDashBoardData']);
@@ -46,7 +51,7 @@ Route::group(['middleware' => ['auth:sanctum', 'cors']],function () {
     Route::put('/disableUser/{id}', [UserController::class, 'disableUser']);
     Route::put('/usersUpdate/{id}', [UserController::class, 'usersUpdate']);
 
-    Route::get('/getNotification/{id}', [UserController::class, 'getNotification']);
+    Route::get('/getNotificationList/{id}', [UserController::class, 'getNotificationList']);
     Route::put('/makeAsRead/{id}', [UserController::class, 'makeAsRead']);
     Route::get('/userLoans/{id}', [UserController::class, 'userLoans']);
     Route::post('/createNewUser', [UserController::class, 'createNewUser']);

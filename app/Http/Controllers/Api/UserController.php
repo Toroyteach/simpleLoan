@@ -78,10 +78,12 @@ class UserController extends Controller
 
         $data = $request->validated();
 
-
         if (isset($data['password'])) {
             $data['password'] = bcrypt($data['password']);
         }
+
+        $data['account_activated'] = 1;
+        
         $user->update($data);
 
         return new UserResource($user);
@@ -124,7 +126,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return response("", 200);
+        return response($fileName, 200);
     }
 
     public function disableUser($id, Request $request)
@@ -147,7 +149,7 @@ class UserController extends Controller
         return response("", 200);
     }
 
-    public function getNotification($id)
+    public function getNotificationList($id)
     {
 
         $notifications = User::find($id);
@@ -182,10 +184,11 @@ class UserController extends Controller
 
     public function getNotifications()
     {
+        
         $user = Auth::user()->id;
-
+        
         $notificationCount = User::find($user);
-
+        
         $count = $notificationCount->unreadNotifications()->groupBy('notifiable_type')->count();
 
         return response($count, 201);

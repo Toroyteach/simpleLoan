@@ -43,7 +43,7 @@ class DailyLoanCheck extends Command
 
         foreach ($loanItems as $key => $loanItem) {
 
-            $createdDate = $loanItem->next_pay_date;
+            $createdDate = $loanItem->due_payment_date;
             
             $date = Carbon::parse($createdDate);
 

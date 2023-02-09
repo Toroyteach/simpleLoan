@@ -25,7 +25,7 @@ class UpdateNewUserProfileRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => ['required', 'email', 'unique:users,email,'.$this->id],
+            'email' => ['required', 'email', 'unique:users,email,'.$this->id,],
             'firstname' => ['required', 'string'],
             'lastname' => ['required', 'string'],
             'address' => ['required', 'string'],

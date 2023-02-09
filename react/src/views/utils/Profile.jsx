@@ -66,8 +66,18 @@ export default function Profile() {
     }
 
     useEffect(() => {
-        
-        setUpdateUser(user)
+
+        if (user.account_activated == 0) {
+
+            setUpdateUser({ ...updateUser, firstname: '' })
+            setUpdateUser({ ...updateUser, lastname: '' })
+            setUpdateUser({ ...updateUser, address: '' })
+            setUpdateUser({ ...updateUser, email: user.email })
+
+        } else {
+
+            setUpdateUser(user)
+        }
 
     }, [user])
 
@@ -77,11 +87,12 @@ export default function Profile() {
         setLoading(true)
 
         axiosClient.put(`/usersUpdate/${user.id}`, updateUser)
-            .then(({data}) => {
+            .then(({ data }) => {
                 setLoading(false)
-                console.log(data)
-                //setUser(data)
+
                 setNotification('User was successfully updated')
+
+                setUser(data)
             })
             .catch(err => {
                 const response = err.response;
@@ -92,7 +103,7 @@ export default function Profile() {
     }
 
     return (
-        <div>
+        <div style={{ "height": "79vh", "overflow": "auto" }}>
             <div style={{ display: 'flex', justifyContent: "space-between", alignItems: "center" }}>
                 <h1>Profile</h1>
                 {/* <Link className="btn-add" to="/users/new">Add new</Link> */}
@@ -135,31 +146,31 @@ export default function Profile() {
                                 <Col>
                                     <Form.Group className="mb-3" controlId="formGroupText">
                                         <Form.Label>Firstname</Form.Label>
-                                        <input type="text" placeholder="Enter Firstname" value={updateUser.firstname} onChange={ev => setUpdateUser({ ...updateUser, firstname: ev.target.value })} />
+                                        <input type="text" placeholder="Enter Firstname" value={updateUser.firstname} onChange={ev => setUpdateUser({ ...updateUser, firstname: ev.target.value })} required/>
                                     </Form.Group>
                                 </Col>
                                 <Col>
                                     <Form.Group className="mb-3" controlId="formGroupEmail">
                                         <Form.Label>Lastname</Form.Label>
-                                        <input type="text" placeholder="Enter Lastame" value={updateUser.lastname} onChange={ev => setUpdateUser({ ...updateUser, lastname: ev.target.value })} />
+                                        <input type="text" placeholder="Enter Lastame" value={updateUser.lastname} onChange={ev => setUpdateUser({ ...updateUser, lastname: ev.target.value })} required/>
                                     </Form.Group>
                                 </Col>
                             </Row>
                             <Form.Group className="mb-3" controlId="formGroupEmail">
                                 <Form.Label>Email address</Form.Label>
-                                <input autocomplete="off" type="email" placeholder="Enter Email" value={updateUser.email} onChange={ev => setUpdateUser({ ...updateUser, email: ev.target.value })} disabled />
+                                <input autoComplete="off" type="email" placeholder="Enter Email" value={user.email} onChange={ev => setUpdateUser({ ...updateUser, email: ev.target.value })} disabled />
                             </Form.Group>
                             <Row>
                                 <Col>
                                     <Form.Group className="mb-3" controlId="formGroupEmail">
                                         <Form.Label>Password</Form.Label>
-                                        <input autocomplete="off" type="password" placeholder="Enter Password" onChange={ev => setUpdateUser({ ...updateUser, password: ev.target.value })} />
+                                        <input autoComplete="off" type="password" placeholder="Enter Password" onChange={ev => setUpdateUser({ ...updateUser, password: ev.target.value })} />
                                     </Form.Group>
                                 </Col>
                                 <Col>
                                     <Form.Group className="mb-3" controlId="formGroupEmail">
                                         <Form.Label>Confirm Password</Form.Label>
-                                        <input autocomplete="off" type="password" placeholder="Confirm Password"  onChange={ev => setUpdateUser({ ...updateUser, password_confirmation: ev.target.value })} />
+                                        <input autoComplete="off" type="password" placeholder="Confirm Password" onChange={ev => setUpdateUser({ ...updateUser, password_confirmation: ev.target.value })} />
                                     </Form.Group>
                                 </Col>
                             </Row>

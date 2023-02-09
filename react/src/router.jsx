@@ -14,6 +14,7 @@ import Notifications from "./views/utils/Notifications.jsx";
 import LoanForm from "./views/LoanForm.jsx";
 import AddUser from "./views/AddUser.jsx";
 import AddLoan from "./views/AddLoan.jsx";
+import Reports from "./views/Reports.jsx";
 
 const router = createBrowserRouter([
   {
@@ -22,7 +23,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <Navigate to="/users"/>
+        element: <Navigate to="/dashboard"/>
       },
       {
         path: '/dashboard',
@@ -59,6 +60,10 @@ const router = createBrowserRouter([
       {
         path: '/notifications',
         element: <Notifications/>
+      },
+      {
+        path: '/reports',
+        element: <Reports/>
       },
     ]
   },

@@ -55,6 +55,7 @@ class User extends Authenticatable
         'role',
         'photo_url',
         'id_number',
+        'account_activated',
         'remember_token',
         'created_at',
         'updated_at',
@@ -76,6 +77,11 @@ class User extends Authenticatable
     public function loan()
     {
         return $this->hasMany(Loan::class, 'user_id');
+    }
+
+    public function loan_files()
+    {
+        return $this->hasMany(LoanFile::class, 'user_id');
     }
 
     public function roles()

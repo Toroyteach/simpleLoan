@@ -60,6 +60,7 @@ class LoanMaximumLimitNotification extends Notification
             'member_id' => $this->user['id'],
             'message_desc' => $this->user['description'],
             'message_name' => $this->user['name'],
+            'loan_id' => $this->user['loan_id'],
             'notification_type' => 'Loan Maximum Limit',
         ];
     }

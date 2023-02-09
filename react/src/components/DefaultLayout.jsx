@@ -1,15 +1,14 @@
-import { Link, Navigate, Outlet } from "react-router-dom";
+import { Link, Navigate, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useStateContext } from "../context/ContextProvider";
 import axiosClient from "../axios-client.js";
 import { useEffect } from "react";
 import Sidebar from "../views/new/Sidebar";
 
 export default function DefaultLayout() {
-  const { user, token, setUser, setToken, notification } = useStateContext();
+  const { user, token, setUser, setToken, notification, setNotification } = useStateContext();
 
-  if (!token) {
-    return <Navigate to="/login" />
-  }
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const onLogout = ev => {
     ev.preventDefault()
@@ -28,6 +27,25 @@ export default function DefaultLayout() {
       })
   }, [])
 
+  if (!token) {
+
+    return <Navigate to="/login" />
+
+  }
+
+  if (user.account_activated === 0) {
+
+    if (location.pathname == '/profile') {
+
+    } else {
+
+      setNotification("You need to Update your details to procceed");
+
+      return <Navigate to="/profile" />
+    }
+
+  }
+
   return (
     <div id="defaultLayout">
       {/* <aside>
@@ -38,14 +56,10 @@ export default function DefaultLayout() {
       <div className="content">
         <header>
           <div>
-            Welcome
-          </div>
-
-          <div>
-            {user.name} &nbsp; &nbsp;
-            <a onClick={onLogout} className="btn-logout" href="#">Logout</a>
+            Welcome &nbsp; {user.name}
           </div>
         </header>
+
         <main>
           <Outlet />
         </main>

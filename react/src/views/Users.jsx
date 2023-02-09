@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axiosClient from "../axios-client.js";
 import { Link, useNavigate } from "react-router-dom";
 import { useStateContext } from "../context/ContextProvider.jsx";
+import Records from "./utils/tbllusersUtils/Records.jsx";
+import Pagination from "./utils/tbllusersUtils/Pagination.jsx";
 
 export default function Users() {
   const [users, setUsers] = useState([]);
@@ -9,7 +11,10 @@ export default function Users() {
   const { user, setNotification } = useStateContext()
   const navigate = useNavigate();
 
-  if(user.role === 'user'){
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage] = useState(10);
+
+  if (user.role === 'user') {
     navigate('/dashboard')
   }
 
@@ -17,18 +22,18 @@ export default function Users() {
     getUsers();
   }, [])
 
-  const onDisableClick = user => {
+  // const onDisableClick = user => {
 
-    if (!window.confirm("Are you sure you want to Change login status for this user?")) {
-      return
-    }
+  //   if (!window.confirm("Are you sure you want to Change login status for this user?")) {
+  //     return
+  //   }
 
-    axiosClient.put(`/disableUser/${user.id}`)
-      .then(() => {
-        setNotification('User Login status was successfully Changed')
-        getUsers()
-      })
-  }
+  //   axiosClient.put(`/disableUser/${user.id}`)
+  //     .then(() => {
+  //       setNotification('User Login status was successfully Changed')
+  //       getUsers()
+  //     })
+  // }
 
   const getUsers = () => {
     setLoading(true)
@@ -42,14 +47,21 @@ export default function Users() {
       })
   }
 
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = users.slice(indexOfFirstRecord, indexOfLastRecord);
+  const nPages = Math.ceil(users.length / recordsPerPage)
+
+  //console.log(nPages, currentPage, indexOfLastRecord, currentRecords)
+
   return (
-    <div>
+    <div style={{ "height": "65vh" }}>
       <div style={{ display: 'flex', justifyContent: "space-between", alignItems: "center" }}>
         <h1>Users</h1>
         <Link className="btn-add" to="/users/new">Add new</Link>
       </div>
       <div className="card animated fadeInDown">
-        <table>
+        {/* <table>
           <thead>
             <tr>
               <th>ID</th>
@@ -62,7 +74,7 @@ export default function Users() {
           {loading &&
             <tbody>
               <tr>
-                <td colSpan="5" class="text-center">
+                <td colSpan="5" className="text-center">
                   Loading...
                 </td>
               </tr>
@@ -92,7 +104,15 @@ export default function Users() {
               ))}
             </tbody>
           }
-        </table>
+        </table> */}
+
+        {loading &&
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        }
+        <Records data={currentRecords} getUsers={getUsers} />
+        <Pagination nPages={nPages} currentPage={currentPage} setCurrentPage={setCurrentPage} />
       </div>
     </div>
   )

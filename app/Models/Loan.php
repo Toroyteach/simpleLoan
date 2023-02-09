@@ -32,6 +32,8 @@ class Loan extends Model
         'max_limit_amount',
         'approved_date',
         'next_pay_date',
+        'file',
+        'due_payment_date',
         'mpesa_receipt',
         'created_at',
         'updated_at',
@@ -57,4 +59,6 @@ class Loan extends Model
     {
         return $this->morphMany(AuditLog::class, 'subject');
     }
+
+
 }

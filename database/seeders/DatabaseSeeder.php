@@ -78,6 +78,9 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Defaulted',
             ],
+            [
+                'name' => 'Paid',
+            ],
         ];
 
         \App\Models\Status::insert($status);

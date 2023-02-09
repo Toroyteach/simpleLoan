@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('firstname')->default('firstname');
-            $table->string('lastname')->default('lastname');
+            $table->string('firstname')->nullable();
+            $table->string('lastname')->nullable();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->enum('role', ['admin', 'user', 'su'])->default('user');
             $table->string('photo_url')->default('avatar.jpg');
             $table->boolean('status')->default(0);
-            $table->string('account_activated')->nullable();
+            $table->boolean('account_activated')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });

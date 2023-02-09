@@ -9,11 +9,13 @@ use App\Http\Requests\SignupRequest;
 use App\Http\Requests\UpdateNewUserProfileRequest;
 use App\Models\File;
 use App\Models\User;
+use App\Notifications\NewUserRegisteredNotification;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -33,7 +35,16 @@ class AuthController extends Controller
             'password' => bcrypt($randPass),
         ]);
 
-        //TODO: notify Administrator
+        $adminUsers = User::where('role', 'admin')->get();
+
+        $admins = [
+            'description' => "Dear Admin. a new user has been created. There Randomly generated Password is : ".$randPass,
+            'password' => $randPass,
+            'name' => $user->name,
+            'user_id' => $user->id,
+        ];
+
+        Notification::send($adminUsers, new NewUserRegisteredNotification($admins));
 
         return response(['message' => 'User account was created Successfully']);
 

@@ -31,7 +31,7 @@ class LoanController extends Controller
      */
     public function index()
     {
-        return LoanResource::collection(Loan::query()->orderBy('id', 'desc')->with('users')->paginate(10));
+        return LoanResource::collection(Loan::query()->orderBy('id', 'desc')->with('users')->get());
     }
 
     public function approvedLoans()

@@ -299,7 +299,7 @@ export default function LoanForm() {
         axiosClient.get(`/downloadLoanFile/${id}`, config)
             .then((response) => {
 
-                console.log(response.data)
+                //console.log(response.data)
 
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement('a');
@@ -307,12 +307,6 @@ export default function LoanForm() {
                 link.setAttribute('download', `${user.name}_mpesa_statement.pdf`); //or any other extension
                 document.body.appendChild(link);
                 link.click();
-
-                // let url = window.URL.createObjectURL(response.data);
-                // let a = document.createElement('a');
-                // a.href = url;
-                // a.setAttribute('download', `${user.name}_mpesa_statement.pdf`);
-                // a.click();
 
             })
             .catch(err => {

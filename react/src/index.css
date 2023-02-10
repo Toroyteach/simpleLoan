@@ -249,3 +249,9 @@ table > tbody > tr > td {
         transform: translateY(0);
     }
 }
+
+.required .control-label:after { 
+    content:"*";
+    color:red;
+ }
+ 

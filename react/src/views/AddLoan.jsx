@@ -20,6 +20,11 @@ export default function AddLoan() {
 
     const [loanFile, setLoanFile] = useState([])
 
+    const [loanAmount, setLoanAmount] = useState(0);
+    const [totalPlusInterest, setTotalPlusInterest] = useState(0);
+    const [paymentDue, setPaymentDue] = useState('');
+
+
     const config = {
         headers: {
             "content-type": "multipart/form-data"
@@ -30,6 +35,36 @@ export default function AddLoan() {
         setLoanFile(event.target.files[0])
     }
 
+    const onLoanAmountEnter = (ev) => {
+        
+        const loanAmountC = ev.target.value
+
+        if(loanAmountC < 1000){
+            return 
+        }
+
+        setLoanAmount(loanAmountC)
+        setLoanRequest({ ...loanRequest, loan_amount: loanAmountC })
+
+
+        const nextMonth = addMonths(new Date(), 1);
+        setPaymentDue(nextMonth.toDateString())
+
+
+        const interest = 0.1 * loanAmountC
+        const floatAmount = parseFloat(loanAmountC)
+        const totalPlusInterest = interest + floatAmount
+        setTotalPlusInterest(totalPlusInterest)
+
+
+    }
+
+    function addMonths(date, months) {
+        date.setMonth(date.getMonth() + months);
+
+        return date;
+    }
+
     const onSubmit = ev => {
         ev.preventDefault()
 
@@ -37,7 +72,7 @@ export default function AddLoan() {
 
         const formData = new FormData();
 
-        for ( var key in loanRequest ) {
+        for (var key in loanRequest) {
             formData.append(key, loanRequest[key]);
         }
 
@@ -104,27 +139,61 @@ export default function AddLoan() {
                     <Col>
                         <Container>
 
-                            {!loading && (
-                                <div className="card animated fadeInDown">
-                                    <form className="row g-3" onSubmit={onSubmit}>
-                                        <div className="col-md-6">
-                                            <label htmlFor="inputEmail4" className="form-label">Loan Amount</label>
-                                            <input type="number" autoComplete="off" className="form-control" id="inputText4" onChange={ev => setLoanRequest({ ...loanRequest, loan_amount: ev.target.value })} required />
+                            <Row>
+
+                                <Col>
+                                    {!loading && (
+                                        <div className="card animated fadeInDown">
+                                            <form className="row g-3" onSubmit={onSubmit}>
+                                                <div className="col-md-6">
+                                                    <label htmlFor="inputEmail4" className="form-label">Loan Amount</label>
+                                                    <input type="number" autoComplete="off" className="form-control" id="inputText4" onChange={onLoanAmountEnter} required />
+                                                </div>
+                                                <div className="form-floating">
+                                                    <textarea className="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style={{ "height": "100px" }} onChange={ev => setLoanRequest({ ...loanRequest, description: ev.target.value })} required></textarea>
+                                                    <label htmlFor="floatingTextarea2">Loan Description</label>
+                                                </div>
+                                                <div className="form-group required">
+                                                    <input type="file" onChange={handleLoanFileSelect} required />
+                                                    <label htmlFor="floatingTextarea2">Upload File</label>
+                                                    <div class="alert alert-danger" role="alert">
+                                                        Upload Previous 3 months Mpesa Statement or Pay slip
+                                                    </div>
+                                                </div>
+                                                <div className="col-12">
+                                                    <button type="submit" className="btn btn-primary">Save</button>
+                                                </div>
+                                            </form>
                                         </div>
-                                        <div className="form-floating">
-                                            <textarea className="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style={{ "height": "100px" }} onChange={ev => setLoanRequest({ ...loanRequest, description: ev.target.value })} required></textarea>
-                                            <label htmlFor="floatingTextarea2">Loan Description</label>
-                                        </div>
-                                        <div className="form-group">
-                                            <input type="file" onChange={handleLoanFileSelect} required/>
-                                            <label htmlFor="floatingTextarea2">Upload Loan Statement</label>
-                                        </div>
-                                        <div className="col-12">
-                                            <button type="submit" className="btn btn-primary">Save</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            )}
+                                    )}
+                                </Col>
+
+                                <Col>
+
+                                    Loan Application Review
+
+
+                                    <Row>
+                                        <Col>
+                                            <div className="form-floating">
+                                                <input className="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style={{ "height": "100px" }} value={loanAmount} disabled></input>
+                                                <label htmlFor="floatingTextarea2">Amount</label>
+                                            </div>
+                                        </Col>
+                                        <Col>
+                                            <div className="form-floating">
+                                                <input className="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style={{ "height": "100px" }} value={totalPlusInterest} disabled></input>
+                                                <label htmlFor="floatingTextarea2">Total plus Interest</label>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                    <div className="form-floating">
+                                        <input className="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style={{ "height": "100px" }} value={paymentDue} disabled></input>
+                                        <label htmlFor="floatingTextarea2">Payment Due</label>
+                                    </div>
+                                </Col>
+                            </Row>
+
 
                         </Container>
                     </Col>

@@ -36,6 +36,7 @@ const Dashboard = () => {
   const [loaned, setLoaned] = useState(null)
   const [paidBack, setPaidBack] = useState(null)
   const [pendingPayment, setPendingPayment] = useState(null)
+  const [paymentDue, setPendingDue] = useState('')
   const { user } = useStateContext()
 
 
@@ -104,6 +105,7 @@ const Dashboard = () => {
         setLoaned(data.amountLoaned)
         setPaidBack(data.amountPaidBack)
         setPendingPayment(data.pendingPayment)
+        setPendingDue(data.paymentDue)
 
       })
       .catch(() => {
@@ -152,7 +154,28 @@ const Dashboard = () => {
 
 
         {(user.role != 'admin') ? (
-          <></>
+          // Users
+          <>
+
+            <div className="col-md-3 col-sm-12 col-lg-3" >
+              <div className="card text-white bg-secondary">
+                <div className="card-header">Loan Application Due</div>
+                <div className="card-body">
+                  <h2 className="card-title"></h2>
+                  <h2 className="card-title">{paymentDue}</h2>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-3 col-sm-12 col-lg-3" >
+              <div className="card text-white bg-danger">
+                <div className="card-header">Pending Payment</div>
+                <div className="card-body">
+                  <h2 className="card-title">Ksh {pendingPayment}</h2>
+                </div>
+              </div>
+            </div>
+          </>
         ) : (
           <>
             <div className="col-md-3 col-sm-12 col-lg-3" >
